@@ -1,0 +1,23 @@
+USE demo;
+
+CREATE TABLE IF NOT EXISTS demo1 (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+INSERT INTO demo1 (id, name) VALUES (1, 'demo1-A'), (2, 'demo1-B');
+
+CREATE TABLE IF NOT EXISTS demo2 (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+INSERT INTO demo2 (id, name) VALUES (1, 'demo2-A'), (2, 'demo2-B');
+
+CREATE TABLE IF NOT EXISTS demo3 (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+INSERT INTO demo3 (id, name) VALUES (1, 'demo3-A'), (2, 'demo3-B');
+

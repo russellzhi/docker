@@ -1,0 +1,132 @@
+services:
+  nginx:
+    image: nginx:1.30.4
+    ports:
+      - "127.0.0.1:8001:8001"
+      - "127.0.0.1:8002:8002"
+      - "127.0.0.1:8003:8003"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./html:/var/www/html:ro
+      - ./logs/nginx:/var/log/nginx
+    depends_on:
+      php74:
+        condition: service_healthy
+      php56:
+        condition: service_healthy
+      php85:
+        condition: service_healthy
+    restart: unless-stopped
+    logging: &logging
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+  php74:
+    build:
+      context: ./php
+      dockerfile: php74/Dockerfile
+    # Allow PHP-FPM to collect slow-request stack traces in this local environment.
+    cap_add: [SYS_PTRACE]
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@fsockopen('127.0.0.1', 9000) ? 0 : 1);"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+    working_dir: /var/www/html/demo2.com
+    environment:
+      DB_HOST: mysql
+      DB_NAME: demo
+      DB_USER: demo
+      DB_PASSWORD: ${MYSQL_PASSWORD:-demo_local_password}
+    volumes:
+      - ./html/demo2.com:/var/www/html/demo2.com
+      - ./php/common.ini:/usr/local/etc/php/conf.d/zz-app.ini:ro
+      - ./php/fpm-logging.conf:/usr/local/etc/php-fpm.d/zzz-logging.conf:ro
+      - ./logs/php74:/var/log/php
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+    logging: *logging
+  php56:
+    build:
+      context: ./php
+      dockerfile: php56/Dockerfile
+    # Allow PHP-FPM to collect slow-request stack traces in this local environment.
+    cap_add: [SYS_PTRACE]
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@fsockopen('127.0.0.1', 9000) ? 0 : 1);"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+    working_dir: /var/www/html/demo1.com
+    environment:
+      DB_HOST: mysql
+      DB_NAME: demo
+      DB_USER: demo
+      DB_PASSWORD: ${MYSQL_PASSWORD:-demo_local_password}
+    volumes:
+      - ./html/demo1.com:/var/www/html/demo1.com
+      - ./php/common.ini:/usr/local/etc/php/conf.d/zz-app.ini:ro
+      - ./php/fpm-logging.conf:/usr/local/etc/php-fpm.d/zzz-logging.conf:ro
+      - ./logs/php56:/var/log/php
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+    logging: *logging
+  php85:
+    build:
+      context: ./php
+      dockerfile: php85/Dockerfile
+    # Allow PHP-FPM to collect slow-request stack traces in this local environment.
+    cap_add: [SYS_PTRACE]
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@fsockopen('127.0.0.1', 9000) ? 0 : 1);"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+    working_dir: /var/www/html/demo3.com
+    environment:
+      DB_HOST: mysql
+      DB_NAME: demo
+      DB_USER: demo
+      DB_PASSWORD: ${MYSQL_PASSWORD:-demo_local_password}
+    volumes:
+      - ./html/demo3.com:/var/www/html/demo3.com
+      - ./php/common.ini:/usr/local/etc/php/conf.d/zz-app.ini:ro
+      - ./php/fpm-logging.conf:/usr/local/etc/php-fpm.d/zzz-logging.conf:ro
+      - ./logs/php85:/var/log/php
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+    logging: *logging
+  mysql:
+    image: mysql:8.0.46
+    entrypoint: ["sh", "/usr/local/bin/project-mysql-entrypoint.sh"]
+    command: ["mysqld"]
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_local_password}
+      MYSQL_DATABASE: demo
+      MYSQL_USER: demo
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-demo_local_password}
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+      - ./logs/mysql:/var/log/mysql
+      - ./mysql/entrypoint.sh:/usr/local/bin/project-mysql-entrypoint.sh:ro
+      - ./mysql/my.cnf:/etc/mysql/conf.d/my.cnf:ro
+      - ./mysql/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "MYSQL_PWD=$$MYSQL_PASSWORD mysql -h 127.0.0.1 -u demo -D demo -e 'SELECT 1 FROM demo1 LIMIT 1; SELECT 1 FROM demo2 LIMIT 1; SELECT 1 FROM demo3 LIMIT 1;' >/dev/null 2>&1"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    restart: unless-stopped
+    logging: *logging
