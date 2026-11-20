@@ -4,7 +4,7 @@
 | --- | --- | --- | --- |
 | demo1 | http://localhost:8001 | 5.6.40（5.6 最终版） | demo.demo1 |
 | demo2 | http://localhost:8002 | 7.4.33 | demo.demo2 |
-| demo3 | http://localhost:8003 | 8.5.10 | demo.demo3 |
+| demo3 | http://localhost:8003 | 8.6.0 | demo.demo3 |
 
 在 WSL 项目目录执行：
 
@@ -29,7 +29,7 @@ python3 scripts/check-logs.py
 | logs/nginx/demo1-access.log、demo2-access.log、demo3-access.log | 每个站点的 HTTP 访问日志 |
 | logs/nginx/demo1-error.log、demo2-error.log、demo3-error.log | 每个站点的 Nginx 错误日志 |
 | logs/nginx/error.log | Nginx 全局错误日志 |
-| logs/php56、logs/php74、logs/php85 下的 error.log | PHP 应用错误日志 |
+| logs/php56、logs/php74、logs/php86 下的 error.log | PHP 应用错误日志 |
 | 同目录 fpm-error.log | PHP-FPM 进程日志和工作进程标准输出 |
 | 同目录 access.log | PHP-FPM 请求日志 |
 | 同目录 slow.log | 超过 5 秒请求的堆栈日志 |
@@ -54,13 +54,15 @@ tail -f logs/mysql/error.log
 - 数据库：PDO、pdo_mysql、mysqli、pdo_pgsql、pgsql、pdo_sqlite、sqlite3。
 - 文本与 Web：mbstring、intl、iconv、curl、openssl、fileinfo、ctype、tokenizer、JSON。
 - XML 与集成：DOM、SimpleXML、XMLReader、XMLWriter、SOAP、XSL、LDAP、Tidy。
-- 图片与压缩：GD（JPEG、PNG、FreeType；7.4/8.5 额外支持 WebP）、Imagick、EXIF、ZIP、BZ2、zlib。
+- 图片与压缩：GD（JPEG、PNG、FreeType；7.4/8.6 额外支持 WebP）、Imagick、EXIF、ZIP、BZ2、zlib。
 - 数学与系统：BCMath、GMP、calendar、gettext、FTP、sockets、pcntl、shmop、sysvmsg、sysvsem、sysvshm。
 - 缓存：OPcache、Redis、APCu。
 
-PHP 5.6 额外提供旧框架使用的 mysql、mcrypt。PHP 7.4/8.5 保留内置 sodium；PHP 7.4 保留原有 browscap 配置。PHP 8.5 的 OPcache 已内置，无需重复编译。
+PHP 5.6 额外提供旧框架使用的 mysql、mcrypt。PHP 7.4/8.6 保留内置 sodium。PHP 8.6 的 OPcache 已内置，无需重复编译。
 
-PECL 扩展固定版本：PHP 5.6 使用 Redis 4.3.0、APCu 4.0.11；PHP 7.4/8.5 使用 Redis 6.3.0、APCu 5.1.28；Imagick 均为 3.8.1。Redis 扩展只是客户端，本环境没有启动 Redis 或 PostgreSQL 服务。未安装与具体业务/运行方式相关的 Swoole、MongoDB、Oracle、SQL Server、Xdebug 等扩展；扩展齐全也不能突破框架本身的 PHP 版本要求。
+三个 PHP 容器通过只读挂载共用 php/browscap.ini，供 get_browser() 根据 User-Agent 查询浏览器特征。
+
+PECL 扩展固定版本：PHP 5.6 使用 Redis 4.3.0、APCu 4.0.11；PHP 7.4 使用 Redis 6.3.0、APCu 5.1.28；PHP 5.6/7.4 使用 Imagick 3.8.1；PHP 8.6 的 Redis、APCu 和 Imagick 使用固定在 php/php86/Dockerfile 中的上游提交。Redis 扩展只是客户端，本环境没有启动 Redis 或 PostgreSQL 服务。未安装与具体业务/运行方式相关的 Swoole、MongoDB、Oracle、SQL Server、Xdebug 等扩展；扩展齐全也不能突破框架本身的 PHP 版本要求。
 
 ## 框架目录与配置
 

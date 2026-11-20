@@ -3,7 +3,7 @@ import subprocess
 import sys
 
 required = "bcmath bz2 calendar ctype curl dom exif fileinfo ftp gd gettext gmp iconv intl json ldap mbstring mysqli openssl PDO pdo_mysql pdo_pgsql pdo_sqlite pgsql pcntl redis apcu imagick shmop SimpleXML soap sockets sqlite3 sysvmsg sysvsem sysvshm tidy tokenizer xml xmlreader xmlwriter xsl zip zlib".split()
-for service in (sys.argv[1:] or ["php56", "php74", "php85"]):
+for service in (sys.argv[1:] or ["php56", "php74", "php86"]):
     extensions = required + (["mysql", "mcrypt"] if service == "php56" else ["sodium"])
     php = "foreach (explode(' ', '%s') as $ext) { if (!extension_loaded($ext)) { fwrite(STDERR, 'Missing: '.$ext.PHP_EOL); exit(1); } }" % " ".join(extensions)
     php += r"""

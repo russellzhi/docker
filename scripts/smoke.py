@@ -3,7 +3,7 @@ from urllib.request import urlopen
 from urllib.error import HTTPError, URLError
 import time
 
-for site, version in [(1, "5.6.40"), (2, "7.4.33"), (3, "8.5.10")]:
+for site, version in [(1, "5.6.40"), (2, "7.4.33"), (3, "8.6.0")]:
     base = "http://127.0.0.1:800%d" % site
     # Allow a short startup/DNS refresh window after containers are recreated.
     for attempt in range(20):

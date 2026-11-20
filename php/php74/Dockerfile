@@ -12,6 +12,3 @@ COPY entrypoint.sh /usr/local/bin/project-php-entrypoint
 RUN chmod +x /usr/local/bin/project-php-entrypoint
 ENTRYPOINT ["project-php-entrypoint"]
 CMD ["php-fpm"]
-
-COPY php74/browscap.ini /usr/local/etc/php/browscap.ini
-RUN echo 'browscap = /usr/local/etc/php/browscap.ini' > /usr/local/etc/php/conf.d/browscap.ini

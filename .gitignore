@@ -1,3 +1,8 @@
 .env
 mysql/data/
 logs/
+
+/html/*
+!/html/demo1.com/
+!/html/demo2.com/
+!/html/demo3.com/

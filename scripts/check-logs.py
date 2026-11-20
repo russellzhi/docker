@@ -48,7 +48,7 @@ def check_site(item):
         path.unlink(missing_ok=True)
 
 with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:
-    list(pool.map(check_site, [(1, "php56", "5.6.40"), (2, "php74", "7.4.33"), (3, "php85", "8.5.10")]))
+    list(pool.map(check_site, [(1, "php56", "5.6.40"), (2, "php74", "7.4.33"), (3, "php86", "8.6.0")]))
 
 sql = "SELECT /* %s */ SLEEP(2.2);" % marker
 subprocess.run(["docker", "compose", "exec", "-T", "mysql", "sh", "-c", 'MYSQL_PWD="$MYSQL_PASSWORD" mysql --comments -u demo -D demo',], input=sql, text=True, check=True, stdout=subprocess.DEVNULL)

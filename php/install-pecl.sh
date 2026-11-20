@@ -7,7 +7,13 @@ else
     packages='redis-6.3.0 apcu-5.1.28 imagick-3.8.1'
 fi
 for package in $packages; do
-    curl -fSL --retry 3 "https://pecl.php.net/get/$package.tgz" -o /tmp/extension.tgz
+    source="https://pecl.php.net/get/$package.tgz"
+    case "$package" in
+        redis-*) source="${PHPREDIS_SOURCE:-$source}" ;;
+        apcu-*) source="${APCU_SOURCE:-$source}" ;;
+        imagick-*) source="${IMAGICK_SOURCE:-$source}" ;;
+    esac
+    curl -fSL --retry 3 "$source" -o /tmp/extension.tgz
     mkdir -p /tmp/extension-build
     tar -xzf /tmp/extension.tgz -C /tmp/extension-build --strip-components=1
     (cd /tmp/extension-build && phpize && ./configure && make -j2 && make install)
