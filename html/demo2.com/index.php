@@ -5,9 +5,9 @@ $rows = array();
 $error = false;
 try {
     $pdo = new PDO(
-        'mysql:host=' . getenv('DB_HOST') . ';dbname=' . getenv('DB_NAME') . ';charset=utf8mb4',
-        getenv('DB_USER'),
-        getenv('DB_PASSWORD'),
+        'mysql:host=' . getenv('DEMO_DB_HOST') . ';dbname=' . getenv('DEMO_DB_NAME') . ';charset=utf8mb4',
+        getenv('DEMO_DB_USER'),
+        getenv('DEMO_DB_PASSWORD'),
         array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC)
     );
     $rows = $pdo->query('SELECT id, name FROM demo2 ORDER BY id')->fetchAll();

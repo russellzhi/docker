@@ -64,11 +64,48 @@ PHP 5.6 额外提供旧框架使用的 mysql、mcrypt。PHP 7.4/8.6 保留内置
 
 PECL 扩展固定版本：PHP 5.6 使用 Redis 4.3.0、APCu 4.0.11；PHP 7.4 使用 Redis 6.3.0、APCu 5.1.28；PHP 5.6/7.4 使用 Imagick 3.8.1；PHP 8.6 的 Redis、APCu 和 Imagick 使用固定在 php/php86/Dockerfile 中的上游提交。Redis 扩展只是客户端，本环境没有启动 Redis 或 PostgreSQL 服务。未安装与具体业务/运行方式相关的 Swoole、MongoDB、Oracle、SQL Server、Xdebug 等扩展；扩展齐全也不能突破框架本身的 PHP 版本要求。
 
-## 框架目录与配置
+## 添加站点
 
-Nginx 只读挂载站点，PHP 各自可读写对应站点，方便框架写入缓存、日志和上传内容。容器内 PHP-FPM 使用 www-data；部署框架时只需给其实际的 storage、runtime、cache、uploads 等可写目录设置适当权限，不要把整个项目设置为 777。当前演示目录的根入口为 index.php；Laravel/Symfony 等框架需要按项目结构将 Nginx root 改为对应 public 目录。
+启动后，所有新增虚拟主机共用本机的 80 端口。三个 demo 也支持通过各自的域名访问，直接访问 8001–8003 的方式可继续使用。
 
-修改 Nginx 配置后执行 `docker compose exec nginx nginx -t`，确认无误再执行 `docker compose exec nginx nginx -s reload`；容器重建后 DNS 刷新可能有数秒短暂过渡。
+1. 将站点放到 html/ 下，例如 html/example.test/。Nginx 和三个 PHP 容器内的路径统一为 /var/www/html/example.test/。
+2. 在 nginx/conf.d/ 新建 example.test.conf，监听容器的 80 端口，用 server_name 指定域名。在 fastcgi_pass 填 php56、php74 或 php86。
+3. 在访问端的 hosts 文件添加 127.0.0.1 example.test。用 Windows 浏览器访问时编辑 Windows 的 hosts 文件，然后打开 http://example.test/。
+4. 执行 docker compose exec nginx nginx -t，成功后执行 docker compose exec nginx nginx -s reload。
+
+三个 demo 的 .conf 可作为普通 PHP 站点的示例。Laravel 等框架使用 public 目录作为 Web 根目录，并且只将公开入口 index.php 转发给 PHP-FPM。例如：
+
+~~~nginx
+server {
+    listen 80;
+    server_name example.test;
+    root /var/www/html/example.test/public;
+    index index.php;
+
+    location ~ /\. {
+        deny all;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location = /index.php {
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root/index.php;
+        fastcgi_pass php86;
+    }
+
+    location ~ \.php(?:/|$) {
+        return 404;
+    }
+}
+~~~
+
+也可以先用 curl -H 'Host: example.test' http://127.0.0.1/ 测试。新增站点和虚拟主机由 Git 忽略，Docker 会正常加载本地文件，无需修改 Compose 或重建镜像。
+
+Nginx 只读挂载 html/，三个 PHP 容器共用可读写挂载。PHP-FPM 使用 www-data，只给应用需要写入的目录设置相应权限，例如 Laravel 的 storage 和 bootstrap/cache。此环境面向本地开发，共享同一运行用户的站点可访问该用户有权读取的其他站点文件。
+
 
 内存限制 256MB，单文件上传限制 32MB，请求体上限 40MB。OPcache 检查代码更新时间，方便本地修改。扩展自带源码编译，软件包源保留签名校验：PHP 5.6 使用 Debian Stretch 官方归档源，PHP 7.4 使用 2026-08-31 的官方 Bullseye 安全源快照，并对旧索引放宽 Valid-Until 检查。这套环境用于本地兼容测试，PHP 5.6/7.4 均已停止官方支持。
 
@@ -76,6 +113,6 @@ Nginx 只读挂载站点，PHP 各自可读写对应站点，方便框架写入�
 
 每张表只有 id（无符号整数自增主键）、name（VARCHAR(100)）两个字段；首次初始化各插入两条记录，例如 demo1-A、demo1-B。页面实际查询 MySQL，并显示运行时 PHP 版本。
 
-可复制 `.env.example` 为 `.env` 后调整密码；未配置时使用 Compose 中的本地演示默认密码。PHP 使用普通用户 demo，数据库不发布宿主机端口。站点端口仅绑定本机回环地址。
+可复制 `.env.example` 为 `.env` 后调整密码；未配置时使用 Compose 中的本地演示默认密码。三个 demo 通过 DEMO_DB_* 环境变量使用普通用户 demo。新增站点在自己的应用配置中连接 mysql:3306，使用自己的数据库和账号。MySQL 不发布宿主机端口。站点端口仅绑定本机回环地址。
 
 MySQL 数据保存在 mysql/data。初始化 SQL 只在空数据目录首次启动时执行，现有数据库不会自动重置或补数据；修改环境变量不会修改现有用户密码。不要删除数据目录来更新已有数据库。为兼容 PHP 5.6 mysqlnd，MySQL 8.0 使用 mysql_native_password。健康检查确认三张表可查询后才启动 PHP，PHP-FPM 端口就绪后才启动 Nginx。Nginx 使用 Docker DNS 动态解析 PHP 服务地址（缓存 5 秒），支持 PHP 容器重建后地址变化。

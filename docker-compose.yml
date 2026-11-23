@@ -3,6 +3,7 @@ services:
     container_name: nginx
     image: nginx:1.30.4
     ports:
+      - "127.0.0.1:80:80"
       - "127.0.0.1:8001:8001"
       - "127.0.0.1:8002:8002"
       - "127.0.0.1:8003:8003"
@@ -37,14 +38,14 @@ services:
       timeout: 3s
       retries: 12
       start_period: 5s
-    working_dir: /var/www/html/demo1.com
+    working_dir: /var/www/html
     environment:
-      DB_HOST: mysql
-      DB_NAME: demo
-      DB_USER: demo
-      DB_PASSWORD: ${MYSQL_PASSWORD:-demo_local_password}
+      DEMO_DB_HOST: mysql
+      DEMO_DB_NAME: demo
+      DEMO_DB_USER: demo
+      DEMO_DB_PASSWORD: ${MYSQL_PASSWORD:-demo_local_password}
     volumes:
-      - ./html/demo1.com:/var/www/html/demo1.com
+      - ./html:/var/www/html
       - ./php/common.ini:/usr/local/etc/php/conf.d/zz-app.ini:ro
       - ./php/browscap.ini:/usr/local/etc/php/browscap.ini:ro
       - ./php/fpm-logging.conf:/usr/local/etc/php-fpm.d/zzz-logging.conf:ro
@@ -67,14 +68,14 @@ services:
       timeout: 3s
       retries: 12
       start_period: 5s
-    working_dir: /var/www/html/demo2.com
+    working_dir: /var/www/html
     environment:
-      DB_HOST: mysql
-      DB_NAME: demo
-      DB_USER: demo
-      DB_PASSWORD: ${MYSQL_PASSWORD:-demo_local_password}
+      DEMO_DB_HOST: mysql
+      DEMO_DB_NAME: demo
+      DEMO_DB_USER: demo
+      DEMO_DB_PASSWORD: ${MYSQL_PASSWORD:-demo_local_password}
     volumes:
-      - ./html/demo2.com:/var/www/html/demo2.com
+      - ./html:/var/www/html
       - ./php/common.ini:/usr/local/etc/php/conf.d/zz-app.ini:ro
       - ./php/browscap.ini:/usr/local/etc/php/browscap.ini:ro
       - ./php/fpm-logging.conf:/usr/local/etc/php-fpm.d/zzz-logging.conf:ro
@@ -97,14 +98,14 @@ services:
       timeout: 3s
       retries: 12
       start_period: 5s
-    working_dir: /var/www/html/demo3.com
+    working_dir: /var/www/html
     environment:
-      DB_HOST: mysql
-      DB_NAME: demo
-      DB_USER: demo
-      DB_PASSWORD: ${MYSQL_PASSWORD:-demo_local_password}
+      DEMO_DB_HOST: mysql
+      DEMO_DB_NAME: demo
+      DEMO_DB_USER: demo
+      DEMO_DB_PASSWORD: ${MYSQL_PASSWORD:-demo_local_password}
     volumes:
-      - ./html/demo3.com:/var/www/html/demo3.com
+      - ./html:/var/www/html
       - ./php/common.ini:/usr/local/etc/php/conf.d/zz-app.ini:ro
       - ./php/browscap.ini:/usr/local/etc/php/browscap.ini:ro
       - ./php/fpm-logging.conf:/usr/local/etc/php-fpm.d/zzz-logging.conf:ro
