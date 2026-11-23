@@ -6,3 +6,8 @@ logs/
 !/html/demo1.com/
 !/html/demo2.com/
 !/html/demo3.com/
+
+/nginx/conf.d/*
+!/nginx/conf.d/demo1.com.conf
+!/nginx/conf.d/demo2.com.conf
+!/nginx/conf.d/demo3.com.conf
